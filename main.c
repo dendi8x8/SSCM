@@ -1,23 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+
+// Disable raylib loading for tui mvp
+#if 0
 #include "include/raylib.h"
+#endif
 
 int main(void) {
-  int width, height;
-  width = 750;
-  height = 500;
   
-  InitWindow(width, height, "SSCM");
-  SetTargetFPS(60);
-
-  double time_from_launch = 0;
-
-  while(time_from_launch < 10) {
-    time_from_launch = GetTime();
-    printf("Window is running: %lf\n seconds", time_from_launch);
-  }
-  
-  CloseWindow();
   return 0;
 }
+
