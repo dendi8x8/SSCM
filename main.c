@@ -36,17 +36,24 @@ int get_files_in_dir(char* dir_path, char** dst_buffer, bool is_hidden) {
 
 int alloc_buf(char* buf[], int size) {
   if (!buf) return -1;
-  for (int i = 0; i < MAX_FILES; i++) {
+  for (int i = 0; i < size; i++) {
     buf[i] = malloc(STRING_LEN);
   }
 }
 
+int dealloc_buf(char* buf[], int size) {
+ for (int i = 0; i < size; i++) {
+     free(buf[i]);
+  }
+}
 void print_files(char** dir_files, int exsiting_files) {
   for (int i = 0; i < exsiting_files; i++) {
     printf("Buffer[%d]: %s\n", i, dir_files[i]);
   }
   puts("");
 }
+
+
 
 int count_exsisting_files(char* dir_path, bool is_hidden) {
   int count = 0;
@@ -72,7 +79,6 @@ int main(void) {
   const char* dst_dir = "tests/out_dir";
   int exsisting_files = 0;
   bool is_hidden = false;
-
   char* dir_files[MAX_FILES];
 
   alloc_buf(dir_files, MAX_FILES);
@@ -81,12 +87,10 @@ int main(void) {
   if (result == 1) {
     fprintf(stderr, "Can't get files in dir %s\n", src_dir);
   }
-
+  
   exsisting_files = count_exsisting_files(src_dir, is_hidden);
   print_files(dir_files, exsisting_files);
 
-  for (int i = 0; i < MAX_FILES; i++) {
-     free(dir_files[i]);
-  }
+  dealloc_buf(dir_files, MAX_FILES);
   return 0;
 }
