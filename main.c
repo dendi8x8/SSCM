@@ -24,9 +24,11 @@ int get_files_in_dir(char* dir_path, char** dst_buffer, bool is_hidden) {
     }
 
     int i = 0;
+    char mod_string[STRING_LEN];
     while ((entry = readdir(dir)) != NULL) {
       if (!is_hidden && entry->d_name[0] == '.') continue;
-      strcpy(dst_buffer[i], entry->d_name);
+      sprintf(mod_string, "%s/%s", dir_path, entry->d_name);
+      strncpy(dst_buffer[i], mod_string, STRING_LEN);
       i++;
     }
 
@@ -52,8 +54,6 @@ void print_files(char** dir_files, int exsiting_files) {
   }
   puts("");
 }
-
-
 
 int count_exsisting_files(char* dir_path, bool is_hidden) {
   int count = 0;
