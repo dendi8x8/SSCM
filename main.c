@@ -1,16 +1,19 @@
 #include <stdio.h>         // for input/output support and files creation
-#include <stdlib.h>        // for standart lib functions 
+#include <stdlib.h>        // for standart lib functions
 #include <stdbool.h>       // for true false support
 #include <sys/stat.h>      // for mkdir syscall
 #include <dirent.h>
-
+#include <string.h>        // for string functions like strncpy
 // Disable raylib loading for tui mvp
 #if 0
 #include "include/raylib.h"
 #endif
 
-// Returns 1 if result is unsuccesful
-int get_files_in_dir(char* dir_path, char** dst_buffer, int size) {
+#define MAX_FILES 1028
+#define STRING_LEN 256
+
+// Returns 1 if result is unsuccesfull
+int get_files_in_dir(char* dir_path, char** dst_buffer, bool is_hidden) {
     DIR *dir;
     struct dirent *entry;
     
@@ -20,31 +23,70 @@ int get_files_in_dir(char* dir_path, char** dst_buffer, int size) {
       return 1;
     }
 
-    int i = 1;
-    bool is_hidden_show = false; 
+    int i = 0;
     while ((entry = readdir(dir)) != NULL) {
-      if (!is_hidden_show && entry->d_name[0] == '.') continue;
-      printf("Entry[%d] d_name: %s\n", i, entry->d_name);
+      if (!is_hidden && entry->d_name[0] == '.') continue;
+      strcpy(dst_buffer[i], entry->d_name);
       i++;
     }
-    
+
     printf("\n");
     return 0;
 }
 
+int alloc_buf(char* buf[], int size) {
+  if (!buf) return -1;
+  for (int i = 0; i < MAX_FILES; i++) {
+    buf[i] = malloc(STRING_LEN);
+  }
+}
+
+void print_files(char** dir_files, int exsiting_files) {
+  for (int i = 0; i < exsiting_files; i++) {
+    printf("Buffer[%d]: %s\n", i, dir_files[i]);
+  }
+  puts("");
+}
+
+int count_exsisting_files(char* dir_path, bool is_hidden) {
+  int count = 0;
+  struct dirent *entry;
+  DIR* dir = opendir(dir_path);
+    
+  if (!dir) { //#TODO: Catch other errors, described at opendir man.
+    fprintf(stderr, "Can't open dir at: %s\n", dir_path);
+    return 1;
+  }
+
+  while((entry = readdir(dir)) != NULL) {
+    if(!is_hidden && entry->d_name[0] == '.') continue;
+    count++;
+  }
+  
+  return count;
+}
+
 int main(void) {
   // First step for today: create skinpack copying to output directory with saved structure of skinpack
-  
   const char* src_dir = "tests/dir_files";
   const char* dst_dir = "tests/out_dir";
+  int exsisting_files = 0;
+  bool is_hidden = false;
 
-  char** dir_files = {};
-  int result = get_files_in_dir(src_dir, NULL, 0);
-  
+  char* dir_files[MAX_FILES];
+
+  alloc_buf(dir_files, MAX_FILES);
+
+  int result = get_files_in_dir(src_dir, dir_files, is_hidden);
   if (result == 1) {
     fprintf(stderr, "Can't get files in dir %s\n", src_dir);
   }
-  
+
+  exsisting_files = count_exsisting_files(src_dir, is_hidden);
+  print_files(dir_files, exsisting_files);
+
+  for (int i = 0; i < MAX_FILES; i++) {
+     free(dir_files[i]);
+  }
   return 0;
 }
-
