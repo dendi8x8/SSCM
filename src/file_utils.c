@@ -23,6 +23,7 @@ int get_files_in_dir(char* dir_path, char** dst_buffer, bool is_hidden) {
     }
 
     printf("\n");
+    closedir(dir);
     return 0;
 }
 
@@ -42,12 +43,13 @@ int count_exsisting_files(char* dir_path, bool is_hidden) {
     fprintf(stderr, "Can't open dir at: %s\n", dir_path);
     return 1;
   }
-
+  
   while((entry = readdir(dir)) != NULL) {
     if(!is_hidden && entry->d_name[0] == '.') continue;
     count++;
   }
-  
+    
+  closedir(dir);
   return count;
 }
 
