@@ -31,7 +31,16 @@ void print_files(char** dir_files, int exsiting_files) {
   for (int i = 0; i < exsiting_files; i++) {
     printf("Buffer[%d]: %s\n", i, dir_files[i]);
   }
-  puts("");
+}
+
+void print_files_dir(const char* dir_path, int exsisting_files, bool is_hidden) {
+  struct dirent *entry;
+  DIR* dir = opendir(dir_path);
+
+  while ((entry = readdir(dir)) != NULL) {
+    if (!is_hidden && entry->d_name[0] == '.') continue;
+    printf("%s\n", entry->d_name);
+  }
 }
 
 int count_exsisting_files(char* dir_path, bool is_hidden) {

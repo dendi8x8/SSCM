@@ -38,7 +38,7 @@ int main(void) {
   char* dir_files[MAX_FILES];
 
   create_base_skinpack_dir(base_skinpack_dir);
-
+  print_files_dir(base_skinpack_dir, exsisting_files, is_hidden);
   return 0;
 }
 
