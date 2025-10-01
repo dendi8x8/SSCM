@@ -15,7 +15,6 @@
 #include "include/file_utils.h"     // #TODO: Write documentation for functions in this header.
 #include "include/base_skinpack.h" // Empty header file.
 
-
 int alloc_buf(char* buf[], int size) {
   if (!buf) return -1;
   for (int i = 0; i < size; i++) {
@@ -30,23 +29,28 @@ int dealloc_buf(char* buf[], int size) {
 }
 
 int main(void) {
-  // First step for today: create skinpack copying to output directory with saved structure of skinpack [no]
-  const char* src_dir = "tests/dir_files";
+  // #TODO: Create init function for standart variables.
+  const char* src_dir = "dir_files"; // #TODO: Add tui path selection
   const char* dst_dir = "tests/out_dir";
+  const char* base_skinpack_dir = "resources/skinpack_base";
   int exsisting_files = 0;
   bool is_hidden = false;
   char* dir_files[MAX_FILES];
 
-  alloc_buf(dir_files, MAX_FILES); // #TODO: Add check for errors
+  create_base_skinpack_dir(base_skinpack_dir);
 
-  int result = get_files_in_dir(src_dir, dir_files, is_hidden);
-  if (result == 1) {
-    fprintf(stderr, "Can't get files in dir %s\n", src_dir);
-  }
-  
-  exsisting_files = count_exsisting_files(src_dir, is_hidden);
-  print_files(dir_files, exsisting_files);
-
-  dealloc_buf(dir_files, MAX_FILES);
   return 0;
 }
+
+
+/*
+  TODOES LIST for 2025-10-1:
+  COUNT(6)
+  15:Write documentation for file_utils.h.
+  32:Write a tui path selection.
+  32: Create init function for standart variables.
+  39:Add check for errors.
+  #TODO: Add absolute pathes initializion for correct work program outside building dirs
+  #TODO: Add errno write to stderr in error handlers.
+  
+*/
