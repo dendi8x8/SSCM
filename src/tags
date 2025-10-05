@@ -1,0 +1,14 @@
+Mmain	main.c	/^int main(void) {$/
+alloc_buf	main.c	/^int alloc_buf(char* buf[], int size) {$/
+count_exsisting_files	#file_utils.c#	/^int count_exsisting_files(char* dir_path, bool is_/
+count_exsisting_files	file_utils.c	/^int count_exsisting_files(char* dir_path, bool is_/
+create_base_skinpack_dir	base_skinpack.c	/^DIR* create_base_skinpack_dir(const char* dir_path/
+dealloc_buf	main.c	/^int dealloc_buf(char* buf[], int size) {$/
+get_files_in_dir	#file_utils.c#	/^int get_files_in_dir(char* dir_path, char** dst_bu/
+get_files_in_dir	file_utils.c	/^int get_files_in_dir(char* dir_path, char** dst_bu/
+init_base_skinpack_struct	base_skinpack.c	/^base_struct* init_base_skinpack_struct() {$/
+move_skinpack_dir	base_skinpack.c	/^int move_skinpack_dir(const char* dir_path, const /
+print_files	#file_utils.c#	/^void print_files(char** dir_files, int exsiting_fi/
+print_files	file_utils.c	/^void print_files(char** dir_files, int exsiting_fi/
+print_files_dir	#file_utils.c#	/^void print_files_dir(const char* dir_path, int exs/
+print_files_dir	file_utils.c	/^void print_files_dir(const char* dir_path, int exs/

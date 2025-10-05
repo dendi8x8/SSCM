@@ -15,6 +15,7 @@
 #include "include/file_utils.h"     // #TODO: Write documentation for functions in this header.
 #include "include/base_skinpack.h" // Empty header file.
 
+
 int alloc_buf(char* buf[], int size) {
   if (!buf) return -1;
   for (int i = 0; i < size; i++) {
@@ -30,15 +31,25 @@ int dealloc_buf(char* buf[], int size) {
 
 int main(void) {
   // #TODO: Create init function for standart variables.
-  const char* src_dir = "dir_files"; // #TODO: Add tui path selection
-  const char* dst_dir = "tests/out_dir";
-  const char* base_skinpack_dir = "resources/skinpack_base";
+  const char* test_dir = "resources/test"; // #TODO: Add tui path selection
+  const char* base_skinpack_dir = "resources/base_skinpack";
+  
   int exsisting_files = 0;
   bool is_hidden = false;
-  char* dir_files[MAX_FILES];
+  char* files[MAX_FILES];
+  alloc_buf(files, PATH_MAX);
 
-  create_base_skinpack_dir(base_skinpack_dir);
-  print_files_dir(base_skinpack_dir, exsisting_files, is_hidden);
+  if (!opendir(test_dir)) {
+    perror("");
+    fprintf(stderr, "%s\n", test_dir);
+    return -1;
+  }
+  traverse_dir_and_save(test_dir, files);
+
+  //exsisting_files = count_exsisting_files(test_dir, false);
+  print_files(files, 4);
+  
+  dealloc_buf(files, PATH_MAX);
   return 0;
 }
 
@@ -52,5 +63,4 @@ int main(void) {
   39:Add check for errors.
   #TODO: Add absolute pathes initializion for correct work program outside building dirs
   #TODO: Add errno write to stderr in error handlers.
-  
 */

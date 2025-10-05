@@ -1,0 +1,27 @@
+
+base_skinpack.h,216
+#define DIR_LENGTH_MAX 1,0
+#define DIRS_COUNT 2,26
+typedef struct base_skinpack_struct_t 4,48
+  char *models_d[models_d5,88
+  char *scripts_d[scripts_d6,122
+  char *sound_d[sound_d7,157
+} base_struct;8,190
+
+default_headers.h,31
+#define DEFAULT_HEADERS_H4,67
+
+file_utils.h,27
+#define FILE_UTILS_H7,110
+
+file_utils.h~,27
+#define FILE_UTILS_H6,125
+
+main_defines.h,78
+#define MAIN_DEFINES_H4,58
+#define MAX_FILES 6,82
+#define STRING_LEN 7,105
+
+main_defines.h~,0
+
+default_headers.h~,0

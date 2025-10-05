@@ -1,0 +1,29 @@
+
+base_skinpack.c,115
+base_struct* init_base_skinpack_struct(11,264
+int move_skinpack_dir(22,506
+DIR* create_base_skinpack_dir(28,620
+
+#file_utils.c#,116
+int get_files_in_dir(6,78
+void print_files(30,668
+void print_files_dir(36,828
+int count_exsisting_files(46,1109
+
+file_utils.c,116
+int get_files_in_dir(6,78
+void print_files(30,668
+void print_files_dir(36,826
+int count_exsisting_files(46,1107
+
+main.c,63
+int alloc_buf(18,452
+int dealloc_buf(25,589
+int main(31,690
+
+tags,29
+Mmain	main.c	/^int main(1,0
+
+include,0
+
+a.out,0

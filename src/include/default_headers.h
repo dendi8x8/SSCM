@@ -9,6 +9,6 @@
 #include <sys/stat.h>      // for mkdir syscall
 #include <dirent.h>
 #include <string.h>        // for string functions like strncpy
-  
+#include <limits.h>        // standart limits. We are use now PATH_MAX const  
 #endif // DEFAULT_HEADERS_H
 
