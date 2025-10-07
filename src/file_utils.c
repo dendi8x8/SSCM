@@ -87,12 +87,9 @@ int traverse_dir_and_save(const char* cur_path, char** paths) {
   while (true) {
     entry = readdir(dir);
     if (entry == NULL) break;
-
     if (is_hidden(entry)) continue;
     
     strcpy(absolute_path, full_path(entry->d_name, cur_path));
-    
-
     
     if(is_directory(absolute_path)) {
       traverse_dir_and_save(absolute_path, paths);
@@ -122,23 +119,3 @@ void print_files_dir(const char* dir_path, int exsisting_files, bool is_hidden) 
     printf("%s\n", entry->d_name);
   }
 }
-
-int count_exsisting_files(char* dir_path, bool is_hidden) {
-  int count = 0;
-  struct dirent *entry;
-  DIR* dir = opendir(dir_path);
-    
-  if (!dir) { //#TODO: Catch other errors, described at opendir man.
-    fprintf(stderr, "Can't open dir at: %s\n", dir_path);
-    return 1;
-  }
-  
-  while((entry = readdir(dir)) != NULL) {
-    if(!is_hidden && entry->d_name[0] == '.') continue;
-    count++;
-  }
-    
-  closedir(dir);
-  return count;
-}
-

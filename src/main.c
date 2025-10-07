@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
   TODOES LIST for 2025-10-7:
   COUNT(6)
   15:Write documentation for file_utils.h.
-  32:Write a tui path selection. ### WORKING ON THAT 
+  32:Write a tui path selection.
   32: Create init function for standart variables.
   39:Add check for errors.
   #TODO: Add absolute pathes initializion for correct work program outside building dirs
