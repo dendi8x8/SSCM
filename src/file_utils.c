@@ -67,6 +67,13 @@ char* full_path(char* d_name, char* path) {
   return result_str;
 }
 
+/* FUNCTION TRAVERSE_DIR_AND_SAVE
+   PURPOSE:
+   Traverse file by path specified in (consts char*)cur_path and write entries to (char**)paths.
+
+   RETURN VALUE:
+   Returns count of files in specifeid dir. Not including .. and . links in dirs.
+ */
 int traverse_dir_and_save(const char* cur_path, char** paths) {
   DIR* dir = opendir(cur_path);
   struct dirent* entry;
@@ -75,6 +82,8 @@ int traverse_dir_and_save(const char* cur_path, char** paths) {
   if(paths == NULL) return -1;
 
   static int i = 0;
+  static int file_c = 0;
+  
   while (true) {
     entry = readdir(dir);
     if (entry == NULL) break;
@@ -82,23 +91,24 @@ int traverse_dir_and_save(const char* cur_path, char** paths) {
     if (is_hidden(entry)) continue;
     
     strcpy(absolute_path, full_path(entry->d_name, cur_path));
+    
 
     
     if(is_directory(absolute_path)) {
       traverse_dir_and_save(absolute_path, paths);
     } else {
       // It's copy only files to buffer
+      file_c++;
       sprintf(paths[i++], "%s", absolute_path);
       printf("files: %s\n", absolute_path);
-     
     }
   }
   
-  return 0;
+  return file_c;
 }
 
 void print_files(char** dir_files, int exsiting_files) {
-  for (int i = 0; i < exsiting_files; i++) {
+  for (int i = 0; i < exsiting_files - 1; i++) {
     printf("Buffer[%d]: %s\n", i, dir_files[i]);
   }
 }

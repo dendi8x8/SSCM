@@ -29,36 +29,41 @@ int dealloc_buf(char* buf[], int size) {
   }
 }
 
-int main(void) {
+int main(int argc, char* argv[]) {
   // #TODO: Create init function for standart variables.
-  const char* test_dir = "resources/test"; // #TODO: Add tui path selection
-  const char* base_skinpack_dir = "resources/base_skinpack";
+  const char* default_dir = "."; // #TODO: Add tui path selection
   
-  int exsisting_files = 0;
+  int files_count = 0;
   bool is_hidden = false;
   char* files[MAX_FILES];
+  
   alloc_buf(files, PATH_MAX);
 
-  if (!opendir(test_dir)) {
+  if (!opendir(default_dir)) {
     perror("");
-    fprintf(stderr, "%s\n", test_dir);
+    fprintf(stderr, "%s\n", default_dir);
     return -1;
   }
-  traverse_dir_and_save(test_dir, files);
 
-  //exsisting_files = count_exsisting_files(test_dir, false);
-  print_files(files, 4);
+  if(argc <= 1) {
+    files_count = traverse_dir_and_save(default_dir, files);
+  } else {
+    files_count = traverse_dir_and_save(argv[1], files);
+  }
+
+  print_files(files, files_count);
   
   dealloc_buf(files, PATH_MAX);
+  
   return 0;
 }
 
 
 /*
-  TODOES LIST for 2025-10-1:
+  TODOES LIST for 2025-10-7:
   COUNT(6)
   15:Write documentation for file_utils.h.
-  32:Write a tui path selection.
+  32:Write a tui path selection. ### WORKING ON THAT 
   32: Create init function for standart variables.
   39:Add check for errors.
   #TODO: Add absolute pathes initializion for correct work program outside building dirs
