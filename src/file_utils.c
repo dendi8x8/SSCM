@@ -48,6 +48,13 @@ bool is_hidden(struct dirent* entry) {
   return false;
 }
 
+/* FUNCTION FULL_PATH
+   PURPOSE:
+   Getting full path of directory specified in 2 arguments (char*) d_name and (char*) path.
+
+   RETURN VALUE:
+   Returns (static char*) full_path. Allocated with malloc();
+ */
 char* full_path(char* d_name, char* path) {
   static bool flag;
   static char* result_str;
