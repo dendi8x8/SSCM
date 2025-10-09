@@ -8,13 +8,13 @@
 #endif
 
 /* MAIN DEFINES */
-
 #include "include/main_defines.h"
 
 /* PROJECT HEADERS */
 #include "include/file_utils.h"     // #TODO: Write documentation for functions in this header.
 #include "include/base_skinpack.h" // Empty header file.
 
+#include <linux/limits.h>
 
 int alloc_buf(char* buf[], int size) {
   if (!buf) return -1;
@@ -51,9 +51,9 @@ int main(int argc, char* argv[]) {
     files_count = traverse_dir_and_save(argv[1], files);
   }
 
-  print_files(files, files_count);
+  // print_files(files, files_count);
   
-  dealloc_buf(files, PATH_MAX);
+   dealloc_buf(files, PATH_MAX);
   
   return 0;
 }

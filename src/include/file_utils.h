@@ -12,7 +12,8 @@ void print_files(char** dir_files, int exsiting_files);
 void print_files_dir(const char* dir_path, int exsisting_files, bool is_hidden);
 int count_exsisting_files(char* dir_path, bool is_hidden);
 int traverse_dir_and_save(const char* cur_path, char** buffer);
-char* full_path(char* d_name, char* path);
+int full_path(char* d_name, char* path, char* dest);
+void free_path(char* str);
 bool is_hidden(struct dirent* entry);
 int is_directory(const char* path);
 

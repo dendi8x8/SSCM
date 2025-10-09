@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-c -Wall
+CFLAGS=-c -Wall --std=c99 -g -D_XOPEN_SOURCE=700 
 
 all: sscm
 
@@ -8,6 +8,7 @@ run: sscm
 
 sscm: main.o file_utils.o base_skinpack.o 
 	$(CC) main.o file_utils.o base_skinpack.o -o sscm
+	rm -rf *.o
 	mv sscm build
 
 main.o: src/main.c
@@ -20,6 +21,6 @@ base_skinpack.o: src/base_skinpack.c
 	$(CC) $(CFLAGS) src/base_skinpack.c
 
 clean:
-	rm -rf *.o sscm
+	rm -rf *.o build/sscm
 
 

@@ -53,25 +53,19 @@ bool is_hidden(struct dirent* entry) {
    Getting full path of directory specified in 2 arguments (char*) d_name and (char*) path.
 
    RETURN VALUE:
-   Returns (static char*) full_path. Allocated with malloc();
+   Returns non-zero value if unsucessfull
  */
-char* full_path(char* d_name, char* path) {
-  static bool flag;
-  static char* result_str;
+int full_path(char* d_name, char* path, char* dest) {
   char resolved_path[PATH_MAX] = {};
-  if(flag) {
-    for (int i = 0; i < strlen(result_str); i++) {
-      result_str[i] = 0;
-    }  
-  }
-  
-  result_str = malloc(MAX_STR_LEN);
   
   realpath(path, resolved_path);
-  sprintf(result_str, "%s/%s", resolved_path, d_name);
+  sprintf(dest, "%s/%s", resolved_path, d_name);
   
-  flag = true;
-  return result_str;
+  return 0;
+}
+
+void free_path(char* str) {
+  free(str);
 }
 
 /* FUNCTION TRAVERSE_DIR_AND_SAVE
@@ -84,19 +78,23 @@ char* full_path(char* d_name, char* path) {
 int traverse_dir_and_save(const char* cur_path, char** paths) {
   DIR* dir = opendir(cur_path);
   struct dirent* entry;
+  char path[PATH_MAX];
   char absolute_path[PATH_MAX];
 
   if(paths == NULL) return -1;
 
   static int i = 0;
   static int file_c = 0;
-  
+
+
   while (true) {
     entry = readdir(dir);
     if (entry == NULL) break;
     if (is_hidden(entry)) continue;
-    
-    strcpy(absolute_path, full_path(entry->d_name, cur_path));
+
+    // Get full path from current entry and cur_path and write it to path var
+    full_path(entry->d_name, cur_path, path);
+    strcpy(absolute_path, path); // There copy this to absoulute_path
     
     if(is_directory(absolute_path)) {
       traverse_dir_and_save(absolute_path, paths);
@@ -104,11 +102,26 @@ int traverse_dir_and_save(const char* cur_path, char** paths) {
       // It's copy only files to buffer
       file_c++;
       sprintf(paths[i++], "%s", absolute_path);
-      printf("files: %s\n", absolute_path);
     }
   }
-  
+
   return file_c;
+}
+
+/* FUNCTION MOVE_FILES
+   PURPOSE:
+   Moving files specified in (char**) paths buffer by calling rename syscall.
+
+   RETURN VALUE:
+   Return non-zero value if unsucesfull
+ */
+
+
+
+int move_files(char** paths) {
+  // Go through the paths arr and change paths dir to the destination dir.
+  printf("NOT IMPLEMENTED\n");
+  exit(0);
 }
 
 void print_files(char** dir_files, int exsiting_files) {
