@@ -115,9 +115,6 @@ int traverse_dir_and_save(const char* cur_path, char** paths) {
    RETURN VALUE:
    Return non-zero value if unsucesfull
  */
-
-
-
 int move_files(char** paths) {
   // Go through the paths arr and change paths dir to the destination dir.
   printf("NOT IMPLEMENTED\n");
