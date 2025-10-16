@@ -1,12 +1,13 @@
-Mmain	main.c	/^int main(int argc, char* argv[]) {$/
-alloc_buf	main.c	/^int alloc_buf(char* buf[], int size) {$/
-c	TAGS	2
-count_exsisting_files	file_utils.c	/^int count_exsisting_files(char* dir_path, bool is_/
-dealloc_buf	main.c	/^int dealloc_buf(char* buf[], int size) {$/
-full_path	file_utils.c	/^char* full_path(char* d_name, char* path) {$/
-get_files_in_dir	file_utils.c	/^int get_files_in_dir(char* dir_path, char** dst_bu/
-is_directory	file_utils.c	/^int is_directory(const char* path) {$/
-is_hidden	file_utils.c	/^bool is_hidden(struct dirent* entry) {$/
-print_files	file_utils.c	/^void print_files(char** dir_files, int exsiting_fi/
-print_files_dir	file_utils.c	/^void print_files_dir(const char* dir_path, int exs/
-traverse_dir_and_save	file_utils.c	/^int traverse_dir_and_save(const char* cur_path, ch/
+DEFAULT_HEADERS_H	include/#default_headers.h#	4
+DEFAULT_HEADERS_H	include/default_headers.h	4
+DIRS_COUNT	include/TAGS	4
+DIR_LENGTH_MAX	include/TAGS	3
+FILE_UTILS_H	include/#file_utils.h#	7
+FILE_UTILS_H	include/file_utils.h	7
+FILE_UTILS_H	include/file_utils.h~	6
+MAIN_DEFINES_H	include/main_defines.h	4
+MAX_FILES	include/main_defines.h	6
+MAX_STR_LEN	include/#file_utils.h#	9
+MAX_STR_LEN	include/file_utils.h	9
+STRING_LEN	include/main_defines.h	7
+h	include/TAGS	2

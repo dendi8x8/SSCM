@@ -1,0 +1,39 @@
+
+src/alloc.c,45
+void alloc_buf(3,21
+void dealloc_buf(9,138
+
+src/file_utils.c,240
+int get_files_in_dir(5,64
+int is_directory(29,654
+bool is_hidden(45,916
+int full_path(60,1220
+void free_path(69,1414
+int traverse_dir_and_save(80,1705
+int move_files(121,2717
+void print_files(129,2953
+void print_files_dir(135,3115
+
+src/main.c,35
+void init(33,748
+int main(37,775
+
+src/skinpack.c,109
+void get_skinpack_relative_path(10,251
+void traverse_skinpack(23,567
+void free_traversed_skinpacks(28,679
+
+src/skinpack.c~,221
+char* Skinpack_dirs[Skinpack_dirs6,127
+void init_skinpack_vars(8,168
+void destruct_skinpack_vars(19,433
+void get_skinpack_relative_path(29,673
+char*** traverse_skinpack(41,988
+void free_traversed_skinpacks(74,1669
+
+src/TAGS,23
+base_skinpack.c,c2,2
+
+src/tags,0
+
+src/include,0

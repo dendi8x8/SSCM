@@ -1,4 +1,8 @@
-/* main_defines.h header. 2025 */
+/*
+  main_defines.h header
+
+  Copyright (c) 2025 Daniel and Kirill.
+ */
 
 #ifndef MAIN_DEFINES_H
 #define MAIN_DEFINES_H

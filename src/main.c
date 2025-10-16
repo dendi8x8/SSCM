@@ -1,3 +1,14 @@
+/* MIT License
+
+   SSCM - Skinpack Selection for Clientmode (Android).
+
+   main.c: Main initializations and inits.
+   
+   Created by Daniel aka @dendi8x8 and Kirill aka @zSav1Xz.
+   
+   Copyright (c) 2025 Daniel and Kirill.
+ */
+
 /* SYTEM LIBRARIES in default_headers.h */
 #include "include/default_headers.h"
 
@@ -12,55 +23,60 @@
 
 /* PROJECT HEADERS */
 #include "include/file_utils.h"     // #TODO: Write documentation for functions in this header.
-#include "include/base_skinpack.h" // Empty header file.
+#include "include/skinpack.h"
+#include "include/alloc.h"
 
-#include <linux/limits.h>
-
-int alloc_buf(char* buf[], int size) {
-  if (!buf) return -1;
-  for (int i = 0; i < size; i++) {
-    buf[i] = malloc(STRING_LEN);
-  }
+/* FUNCTION INIT
+   PURPOSE:
+   Init main variables of project.
+ */
+void init() {
+  return;
 }
 
-int dealloc_buf(char* buf[], int size) {
- for (int i = 0; i < size; i++) {
-     free(buf[i]);
-  }
-}
 
 int main(int argc, char* argv[]) {
+  init();
   // #TODO: Create init function for standart variables.
-  const char* default_dir = "."; // #TODO: Add tui path selection
+  const char default_dir[PATH_MAX]; // It's current working directory.
+  getcwd(default_dir, PATH_MAX);
   
   int files_count = 0;
-  bool is_hidden = false;
   char* files[MAX_FILES];
   
-  alloc_buf(files, PATH_MAX);
-
-  if (!opendir(default_dir)) {
-    perror("");
-    fprintf(stderr, "%s\n", default_dir);
+  alloc_buf(files, SKINPACK_DIR_COUNT, PATH_MAX);
+  
+  if (!is_correct_dir(default_dir)) {
+    char* err_msg = strerror(errno);
+    printf("err: %s: %s\n", default_dir, err_msg);
     return -1;
   }
 
-  if(argc <= 1) {
-    files_count = traverse_dir_and_save(default_dir, files);
-  } else {
-    files_count = traverse_dir_and_save(argv[1], files);
+  // #FIXME: Non constant array initializers.
+  char* scripts_relative[32];
+  char* scripts_full[32];
+  int models_file_count = 0;
+  
+  alloc_buf(scripts_relative, 32, PATH_MAX);
+  alloc_buf(scripts_full, 32, PATH_MAX);
+  
+  models_file_count = traverse_skinpack("resources/base", "base", scripts_relative, scripts_full);
+
+  for (int i = 0; i < models_file_count; i++) {
+    move_skinpack_dir("resources/out", scripts_relative[i], scripts_full[i]);
   }
 
-  // print_files(files, files_count);
+  dealloc_buf(scripts_relative, 32); 
+  dealloc_buf(scripts_full, 32);
   
-   dealloc_buf(files, PATH_MAX);
+  dealloc_buf(files, SKINPACK_DIR_COUNT);
   
+  printf("ERRNO: %d\nErr: %s\n", errno, strerror(errno));
   return 0;
 }
 
-
 /*
-  TODOES LIST for 2025-10-7:
+  TODOES LIST for 2025-10-10:
   COUNT(6)
   15:Write documentation for file_utils.h.
   32:Write a tui path selection.

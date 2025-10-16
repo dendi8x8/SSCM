@@ -26,7 +26,7 @@ int get_files_in_dir(char* dir_path, char** dst_buffer, bool is_hidden) {
     return 0;
 }
 
-int is_directory(const char* path) {
+bool is_directory(const char* path) {
     struct stat file_stat;
     stat(path, &file_stat);
     
@@ -37,7 +37,17 @@ int is_directory(const char* path) {
     case S_IFREG:
 	return false;
 	break;
+    default:
+      return false;
     }
+}
+
+bool is_exist(const char* path) {
+  if (!opendir(path)) {
+    return false;
+  }
+  
+  return true;
 }
 
 bool is_hidden(struct dirent* entry) {
@@ -46,6 +56,18 @@ bool is_hidden(struct dirent* entry) {
   }
   
   return false;
+}
+
+bool is_correct_dir(const char* path) {
+  if (!is_exist(path)) {
+    return false;
+  }
+
+  if (!is_directory(path)) {
+    return false;
+  }
+  
+  return true;
 }
 
 /* FUNCTION FULL_PATH
@@ -81,7 +103,7 @@ int traverse_dir_and_save(const char* cur_path, char** paths) {
   char path[PATH_MAX];
   char absolute_path[PATH_MAX];
 
-  if(paths == NULL) return -1;
+  if (paths == NULL) return -1;
 
   static int i = 0;
   static int file_c = 0;
@@ -96,7 +118,7 @@ int traverse_dir_and_save(const char* cur_path, char** paths) {
     full_path(entry->d_name, cur_path, path);
     strcpy(absolute_path, path); // There copy this to absoulute_path
     
-    if(is_directory(absolute_path)) {
+    if (is_directory(absolute_path)) {
       traverse_dir_and_save(absolute_path, paths);
     } else {
       // It's copy only files to buffer
@@ -110,19 +132,23 @@ int traverse_dir_and_save(const char* cur_path, char** paths) {
 
 /* FUNCTION MOVE_FILES
    PURPOSE:
-   Moving files specified in (char**) paths buffer by calling rename syscall.
+   Moving files to specified in (char**) paths buffer by calling rename syscall;
+   check paths size in var size.
 
    RETURN VALUE:
    Return non-zero value if unsucesfull
  */
-int move_files(char** paths) {
+int move_files(const char** paths, int size, const char* dst_dir) {
   // Go through the paths arr and change paths dir to the destination dir.
-  printf("NOT IMPLEMENTED\n");
-  exit(0);
+  
+  // 1. Change paths[i] to full path to dst_dir
+  for (int i = 0; i < size; i++) {
+    
+  }
 }
 
 void print_files(char** dir_files, int exsiting_files) {
-  for (int i = 0; i < exsiting_files - 1; i++) {
+  for (int i = 0; i <= exsiting_files - 1; i++) {
     printf("Buffer[%d]: %s\n", i, dir_files[i]);
   }
 }
