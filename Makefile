@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-c -Wall --std=c99 -D_XOPEN_SOURCE=700 
+CFLAGS=-c -g -Wall --std=c99 -D_XOPEN_SOURCE=700 
 
 all: sscm
 

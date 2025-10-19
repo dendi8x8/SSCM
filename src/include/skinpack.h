@@ -27,7 +27,7 @@ struct skinpack {
 
 
 void get_skinpack_relative_path(const char* path, char* skinpack_name, char* dst);
-void create_base_skinpack_dir(char* path, char* skinpack_name);
+void create_base_skinpack_dir(const char* path, char* skinpack_name);
 int traverse_skinpack(char* path, char* skinpack_name, char* relative[], char* full[]);
 void cp_skinpack_dir(char* path, char* src, char* full_src);
 

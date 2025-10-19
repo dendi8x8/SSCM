@@ -22,58 +22,33 @@
 #include "include/main_defines.h"
 
 /* PROJECT HEADERS */
+#include "include/alloc.h"
 #include "include/file_utils.h"     // #TODO: Write documentation for functions in this header.
 #include "include/skinpack.h"
-#include "include/alloc.h"
 
 /* FUNCTION INIT
    PURPOSE:
    Init main variables of project.
  */
-void init() {
-  return;
+int init(int argc, char* argv[]) {
+  char test_dir_path[PATH_MAX] = {};
+  
+  if (argc <= 1) {
+    test_dir_path[0] = '.';
+  } else if (is_directory(argv[1])){
+    strcpy(test_dir_path, argv[1]);
+  } else {
+    printf("Err: %s: not a directory!\n", argv[1]);
+    return errno;
+  }
+
+  printf("Selected dir: %s\n", test_dir_path);
+  create_base_skinpack_dir(test_dir_path, "");
+  return 0;
 }
 
-
 int main(int argc, char* argv[]) {
-  init();
-  // #TODO: Create init function for standart variables.
-  const char default_dir[PATH_MAX]; // It's current working directory.
-  getcwd(default_dir, PATH_MAX);
-  
-  int files_count = 0;
-  char* files[MAX_FILES];
-  
-  alloc_buf(files, SKINPACK_DIR_COUNT, PATH_MAX);
-  
-  if (!is_correct_dir(default_dir)) {
-    char* err_msg = strerror(errno);
-    printf("err: %s: %s\n", default_dir, err_msg);
-    return -1;
-  }
-
-  // #FIXME: Non constant array initializers.
-  char* scripts_relative[32];
-  char* scripts_full[32];
-  int scripts_file_count = 0;
-  
-  alloc_buf(scripts_relative, 32, PATH_MAX);
-  alloc_buf(scripts_full, 32, PATH_MAX);
-  
-  scripts_file_count = traverse_skinpack("resources/base", "base", scripts_relative, scripts_full);
-
-  for (int i = 0; i < scripts_file_count; i++) {
-    move_skinpack_dir("resources/skinpackSX", scripts_relative[i], scripts_full[i]);
-  }
-
-  dealloc_buf(scripts_relative, 32);
-  dealloc_buf(scripts_full, 32);
-  
-  dealloc_buf(files, SKINPACK_DIR_COUNT);
-
-  //  create_base_skinpack_dir(".", "skinpack");
-  
-  printf("ERRNO: %d\nErr: %s\n", errno, strerror(errno));
+  init(argc, argv);
   return 0;
 }
 

@@ -27,19 +27,19 @@ int get_files_in_dir(char* dir_path, char** dst_buffer, bool is_hidden) {
 }
 
 bool is_directory(const char* path) {
-    struct stat file_stat;
-    stat(path, &file_stat);
-    
-    switch (file_stat.st_mode & S_IFMT) {
-    case S_IFDIR:
-	return true;
-	break;
-    case S_IFREG:
-	return false;
-	break;
-    default:
-      return false;
-    }
+  struct stat file_stat;
+  stat(path, &file_stat);
+
+  switch (file_stat.st_mode & S_IFMT) {
+  case S_IFDIR:
+    return true;
+    break;
+  case S_IFREG:
+    return false;
+    break;
+  default:
+    return false;
+  }
 }
 
 bool is_exist(const char* path) {
@@ -77,7 +77,7 @@ bool is_correct_dir(const char* path) {
    RETURN VALUE:
    Returns non-zero value if unsucessfull
  */
-int full_path(char* d_name, char* path, char* dest) {
+static int full_path(char* d_name, char* path, char* dest) {
   char resolved_path[PATH_MAX] = {};
   
   realpath(path, resolved_path);
@@ -86,28 +86,58 @@ int full_path(char* d_name, char* path, char* dest) {
   return 0;
 }
 
-void free_path(char* str) {
-  free(str);
-}
+/* FUNCTION
+   PURPOSE: Return the count of files and/or(specified in 2 arg.) dir.
+   RETURN: int
+ */
+int count_files(char* cur_path, bool count_dir) {
+  DIR* dir = opendir(cur_path);
+  if(!is_correct_dir(cur_path)) return -1;
+  
+  struct dirent* entry;
+  static int file_count;
+  printf("cur_path: %s:\t\t\t\t len:%lu\n", cur_path, strlen(cur_path));
+  char path_full[PATH_MAX] = {};
+  char absolute_path[PATH_MAX];
+  
+  while(true) {
+    entry = readdir(dir);
+    if (entry == NULL) break;
+    if (is_hidden(entry)) continue;
+
+    full_path(entry->d_name, cur_path, path_full);
+
+    if (is_correct_dir(path_full)) {
+      if(count_dir) {
+        file_count++;
+      }
+      count_files(path_full, count_dir);
+    } else {
+      file_count++;
+    }
+  }
+
+  return file_count;
+} 
+ 
 
 /* FUNCTION TRAVERSE_DIR_AND_SAVE
    PURPOSE:
    Traverse file by path specified in (consts char*)cur_path and write entries to (char**)paths.
 
    RETURN VALUE:
-   Returns count of files in specifeid dir. Not including .. and . links in dirs.
+   Returns count of files in specifeid dir. Not including .. and . links.
  */
 int traverse_dir_and_save(const char* cur_path, char** paths) {
   DIR* dir = opendir(cur_path);
   struct dirent* entry;
   char path[PATH_MAX];
   char absolute_path[PATH_MAX];
-
+ 
   if (paths == NULL) return -1;
 
   static int i = 0;
   static int file_c = 0;
-
 
   while (true) {
     entry = readdir(dir);
@@ -123,28 +153,11 @@ int traverse_dir_and_save(const char* cur_path, char** paths) {
     } else {
       // It's copy only files to buffer
       file_c++;
-      sprintf(paths[i++], "%s", absolute_path);
+      sprintf(paths[i++], "%s%c", absolute_path, '\0');
     }
   }
 
   return file_c;
-}
-
-/* FUNCTION MOVE_FILES
-   PURPOSE:
-   Moving files to specified in (char**) paths buffer by calling rename syscall;
-   check paths size in var size.
-
-   RETURN VALUE:
-   Return non-zero value if unsucesfull
- */
-int move_files(const char** paths, int size, const char* dst_dir) {
-  // Go through the paths arr and change paths dir to the destination dir.
-  
-  // 1. Change paths[i] to full path to dst_dir
-  for (int i = 0; i < size; i++) {
-    
-  }
 }
 
 void print_files(char** dir_files, int exsiting_files) {
