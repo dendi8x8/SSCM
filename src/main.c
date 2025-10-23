@@ -43,15 +43,32 @@ int init(int argc, char* argv[]) {
   }
 
   char* base_dir_path = malloc(PATH_MAX);
-  const char* base_dir_rel_path = "resources/test";
+  const char* base_dir_rel_path = "resources/base";
 
   if(!realpath(base_dir_rel_path, base_dir_path)) {
     fprintf(stderr, "err: %s %s\n", strerror(errno), base_dir_rel_path);
     return errno;
   }
+
+  char skinpack_dir_path[strlen(argv[1])];
   
-  printf("Selected dir: %s\n", test_dir_path);
-  create_base_skinpack_dir(test_dir_path, "", base_dir_path);
+  if (!realpath(argv[1], skinpack_dir_path)) {
+    fprintf(stderr, "err: %s %s\n", strerror(errno), argv[1]);
+  }
+  
+  printf("Selected dir: %s\n", skinpack_dir_path);
+  printf("Do you want continue?(y or n)");
+  char c;
+
+  scanf("%c", &c);
+  if (c == 'y') {
+    create_base_skinpack_dir(skinpack_dir_path, "", base_dir_path);  
+  } else if (c == 'n') {
+    puts("Canceling operation... Exiting..");
+    return 0;
+  } else {
+    printf("Enter correct operation!\n");
+  }
   
   free(base_dir_path);
   return 0;

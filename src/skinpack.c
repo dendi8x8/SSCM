@@ -161,11 +161,11 @@ void cp_file(const char* dst_path, const char* src_path, const char* src_root) {
   return;
 }
 
+
+// #REFACTOR: Extract body to the functions for easy reading.
 /* LOCAL FUNCTION
 
  */
-
-
 void create_base_skinpack_dir(const char* sp_path, char* skinpack_name, const char* base_path) {
   // 1. Create base dirs in skinpack.
   char* base_dirs[MAX_FILES_SKINPACK];
@@ -193,12 +193,31 @@ void create_base_skinpack_dir(const char* sp_path, char* skinpack_name, const ch
   }
   
   dealloc_buf(result_paths, base_dirs_count);
-  
-  /* 2. Move files from base to resulting skinpack
-     Some code....
-   */
-
-  
-  
   dealloc_buf(base_dirs, MAX_FILES_SKINPACK);
+  // 2. Move files from base to resulting skinpack
+     
+  char* base_files[MAX_FILES_SKINPACK];
+  alloc_buf(base_files, MAX_FILES_SKINPACK, PATH_MAX);
+
+  char *files_full_paths[MAX_FILES_SKINPACK];
+  int base_files_count = traverse_dir_and_save(base_path, base_files, E_TRAVERSE_ONLY_FILES, true);
+  alloc_buf(files_full_paths, base_files_count, PATH_MAX);
+  print_files(base_files, base_files_count);
+  
+  // trim full path.
+  for (int i = 0; i < base_files_count; i++) {
+    char* trim_str = get_skin_relative_path(base_files[i], base_path);
+    printf("trim str %s\n", trim_str);
+    sprintf(files_full_paths[i], "%s/%s", sp_path, trim_str);
+    printf("res str: %s\n", files_full_paths[i]);
+  }
+
+  for (int i = 0; i < base_files_count; i++) {
+    cp_file(files_full_paths[i], base_files[i], base_path);
+    printf("created file at path: %s\n", files_full_paths[i]);
+  }
+
+  dealloc_buf(files_full_paths, base_files_count);
+  dealloc_buf(base_files, MAX_FILES_SKINPACK);
 }
+
