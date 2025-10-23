@@ -31,6 +31,6 @@ char* get_skin_relative_path(const char* path, char* skinpack_name);
 void create_base_skinpack_dir(const char* path, char* skinpack_name, const char* base_path);
 int traverse_skinpack(char* path, char* skinpack_name, char* relative[], char* full[]);
 void cp_skinpack_dir(char* path, char* src_dir, const char* full_src);
-void copy_skin_to_skinpack();
+void cp_skin(char* sp_path, char* base_path, char* skin_name);
 #endif // BASE_SKINPACK_H
 

@@ -33,8 +33,9 @@
 int init(int argc, char* argv[]) {
   char test_dir_path[PATH_MAX] = {};
   
-  if (argc <= 1) {
-    test_dir_path[0] = '.';
+  if (argc < 2) {
+    puts("No dir selected. Exiting...");
+    return 2;
   } else if (is_directory(argv[1])){
     strcpy(test_dir_path, argv[1]);
   } else {
@@ -69,6 +70,7 @@ int init(int argc, char* argv[]) {
   } else {
     printf("Enter correct operation!\n");
   }
+
   
   free(base_dir_path);
   return 0;
