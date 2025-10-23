@@ -58,6 +58,15 @@ bool is_hidden(struct dirent* entry) {
   return false;
 }
 
+bool is_file_exist(const char* path) {
+  if (!fopen(path, "r")) {
+    return false;
+  }
+  
+  return true;
+  
+}
+
 bool is_correct_dir(const char* path) {
   if (!is_exist(path)) {
     return false;
@@ -96,7 +105,6 @@ int count_files(char* cur_path, bool count_dir) {
   
   struct dirent* entry;
   static int file_count;
-  printf("cur_path: %s:\t\t\t\t len:%lu\n", cur_path, strlen(cur_path));
   char path_full[PATH_MAX] = {};
   char absolute_path[PATH_MAX];
   
@@ -124,40 +132,61 @@ int count_files(char* cur_path, bool count_dir) {
 /* FUNCTION TRAVERSE_DIR_AND_SAVE
    PURPOSE:
    Traverse file by path specified in (consts char*)cur_path and write entries to (char**)paths.
-
+   DON'T COUNT THE ROOT DIR specified in (const char*)cur_path argument
+   
    RETURN VALUE:
-   Returns count of files in specifeid dir. Not including .. and . links.
+   Returns count of files in specifeid dir. Not including .. and . links in dirs.
  */
-int traverse_dir_and_save(const char* cur_path, char** paths) {
+int traverse_dir_and_save(const char* cur_path, char** paths, int mode, bool reset) {
   DIR* dir = opendir(cur_path);
   struct dirent* entry;
   char path[PATH_MAX];
   char absolute_path[PATH_MAX];
- 
-  if (paths == NULL) return -1;
 
+  if (paths == NULL) return -1;
+  
   static int i = 0;
-  static int file_c = 0;
+  static int file_count = 0;
+  static int dir_count = 0;
+  if (reset) {
+    i = 0;
+    file_count = 0;
+    dir_count = 0;
+  }
 
   while (true) {
     entry = readdir(dir);
     if (entry == NULL) break;
     if (is_hidden(entry)) continue;
 
-    // Get full path from current entry and cur_path and write it to path var
+    // Get full path from current entry and cur_path and write it to path var.
     full_path(entry->d_name, cur_path, path);
-    strcpy(absolute_path, path); // There copy this to absoulute_path
-    
-    if (is_directory(absolute_path)) {
-      traverse_dir_and_save(absolute_path, paths);
-    } else {
-      // It's copy only files to buffer
-      file_c++;
-      sprintf(paths[i++], "%s%c", absolute_path, '\0');
-    }
-  }
+    strcpy(absolute_path, path); // There copy this to absoulute_path.
 
-  return file_c;
+    if (is_directory(absolute_path)) {
+      if (mode == E_TRAVERSE_ONLY_DIRS || mode == E_TRAVERSE_ALL) {
+        sprintf(paths[dir_count], "%s", absolute_path);
+        dir_count++;
+      }
+      traverse_dir_and_save(absolute_path, paths, mode, false);
+    } else {
+      if (mode == E_TRAVERSE_ONLY_FILES || mode == E_TRAVERSE_ALL) {
+        sprintf(paths[file_count], "%s", absolute_path);
+        file_count++;
+      }
+    }
+    
+    if (mode == E_TRAVERSE_ALL) {
+      sprintf(paths[i], "%s", absolute_path);
+    }
+    i++;
+  }
+  
+  if (mode == E_TRAVERSE_ALL)        return i;
+  if (mode == E_TRAVERSE_ONLY_FILES) return file_count;
+  if (mode == E_TRAVERSE_ONLY_DIRS)  return dir_count;
+  // ELSE:
+  return -1;
 }
 
 void print_files(char** dir_files, int exsiting_files) {

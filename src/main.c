@@ -42,8 +42,18 @@ int init(int argc, char* argv[]) {
     return errno;
   }
 
+  char* base_dir_path = malloc(PATH_MAX);
+  const char* base_dir_rel_path = "resources/test";
+
+  if(!realpath(base_dir_rel_path, base_dir_path)) {
+    fprintf(stderr, "err: %s %s\n", strerror(errno), base_dir_rel_path);
+    return errno;
+  }
+  
   printf("Selected dir: %s\n", test_dir_path);
-  create_base_skinpack_dir(test_dir_path, "");
+  create_base_skinpack_dir(test_dir_path, "", base_dir_path);
+  
+  free(base_dir_path);
   return 0;
 }
 
