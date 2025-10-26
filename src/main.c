@@ -35,43 +35,72 @@ int init(int argc, char* argv[]) {
   
   if (argc < 2) {
     puts("No dir selected. Exiting...");
-    return 2;
+    exit(ENOENT);
   } else if (is_directory(argv[1])){
     strcpy(test_dir_path, argv[1]);
   } else {
     printf("Err: %s: not a directory!\n", argv[1]);
-    return errno;
+    exit(errno);
   }
 
+  // Create base dir path where storese a base strucutre of all skinpacks
   char* base_dir_path = malloc(PATH_MAX);
   const char* base_dir_rel_path = "resources/base";
 
+  // Get full path to base dir
   if(!realpath(base_dir_rel_path, base_dir_path)) {
     fprintf(stderr, "err: %s %s\n", strerror(errno), base_dir_rel_path);
-    return errno;
+    exit(errno);
   }
 
+  // Get full path of created skinpack_dir_path buffer
   char skinpack_dir_path[strlen(argv[1])];
-  
   if (!realpath(argv[1], skinpack_dir_path)) {
     fprintf(stderr, "err: %s %s\n", strerror(errno), argv[1]);
+    exit(errno);
   }
-  
+
   printf("Selected dir: %s\n", skinpack_dir_path);
   printf("Do you want continue?(y or n)");
-  char c;
 
+  char c;
   scanf("%c", &c);
   if (c == 'y') {
-    create_base_skinpack_dir(skinpack_dir_path, "", base_dir_path);  
   } else if (c == 'n') {
     puts("Canceling operation... Exiting..");
-    return 0;
+    return EXIT_SUCCESS;
   } else {
     printf("Enter correct operation!\n");
+    return EXIT_FAILURE;
   }
 
+  // Create skinpack base, stores it path in skinpack_dir_path.
+  //  create_base_skinpack_dir(skinpack_dir_path, "", base_dir_path);
+
+  char* base_skins_path = "resources/skinpackSX/materials/models/weapons/v_models";
+  char* base_skins_paths[MAX_FILES_SKINPACK];
+  alloc_buf(base_skins_paths, MAX_FILES_SKINPACK, PATH_MAX);
+
+  int base_skins_count = traverse_dir_and_save(base_skins_path, base_skins_paths, E_TRAVERSE_ONLY_DIRS, true);
+  print_files(base_skins_paths, base_skins_count);
+
+  const char* skins_subdir = "/materials/models/weapons/v_models";
+  char* sp_path_subdired = malloc(strlen(skinpack_dir_path) + strlen(skins_subdir));
   
+  strcpy(sp_path_subdired, skinpack_dir_path);
+  strcat(sp_path_subdired, skins_subdir);
+
+  if(!is_correct_dir(sp_path_subdired)) {
+    fprintf(stderr, "err: %s %s\n", strerror(errno), sp_path_subdired);
+    exit(ENOENT);
+  }
+
+  printf("base skins paths: %s\n", base_skins_paths[0]);
+  printf("skinpath path: %s\n", sp_path_subdired);
+  printf("base path: %s\n", base_skins_path);
+  cp_skin(sp_path_subdired, base_skins_path, base_skins_paths[0], "out_skinpack");
+  
+  dealloc_buf(base_skins_paths, MAX_FILES_SKINPACK);
   free(base_dir_path);
   return 0;
 }

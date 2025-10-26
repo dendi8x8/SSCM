@@ -42,6 +42,18 @@ bool is_directory(const char* path) {
   }
 }
 
+/* FUNCITON
+   PURPOSE:
+   Get file size in bytes.
+   RETURN VALUE:
+   Returns size in bytes. */ 
+size_t get_file_size(const char* path) {
+  struct stat file_stat;
+
+  stat(path, &file_stat);
+  return file_stat.st_size;
+}
+
 bool is_exist(const char* path) {
   if (!opendir(path)) {
     return false;

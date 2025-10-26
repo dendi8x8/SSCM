@@ -27,6 +27,7 @@ bool is_exist(const char* path);
 bool is_directory(const char* path);
 bool is_file_exist(const char* path);
 bool is_correct_dir(const char* path);
+size_t get_file_size(const char* path);
 int count_files(char* path, bool count_dir);
 int move_files(const char** paths, int size, const char* dst_path);
 

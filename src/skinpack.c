@@ -5,6 +5,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 
 /* function GET_SKIN_RELATIVE_PATH
    PURPOSE:
@@ -58,36 +59,24 @@ char* get_subdir(const char* src_path, const char* src_root) {
   return strdup(subdir_occ + root_len);
 }
 
-void cp_file(const char* dst_path, const char* src_path, const char* src_root) {
-  FILE* dst_file = fopen(dst_path, "w");
-  if (!dst_file) {
-    perror("");
-    fprintf(stderr, "dst_path: %s\n", dst_path);
-    fclose(dst_file);
-    return;
-  }
+static void cp_file(const char* dst_path, const char* src_path) {
+  int src_fd = open(src_path, O_RDONLY);
+  int dst_fd = open(dst_path, O_WRONLY | O_CREAT, 0655); // 0655 permissions bytes
 
-  FILE* src_file = fopen(src_path, "r");
-  if (!src_file) {
-    perror("");
-    fprintf(stderr, "src_path: %s\n", src_path);
-    fclose(src_file);
-    return;
-  }
-
-  char c;
-  while (true) {
-    c = fgetc(src_file);
-    if(c == EOF) {
-      break;
-    }
-
-    fputc(c, dst_file);
+  size_t src_size = get_file_size(src_path);
+  char* src_buf = malloc(src_size);
+  if (!src_buf) {
+    fprintf(stderr, "Err: %s\n", strerror(errno));
   }
   
-  fclose(src_file);
-  fclose(dst_file);
-  return;
+  if (src_fd != -1 && dst_fd != -1) {
+    read(src_fd, src_buf, src_size);
+    write(dst_fd, src_buf, src_size);
+  }
+  
+  free(src_buf);
+  close(src_fd);
+  close(dst_fd);
 }
 
 char* trim_full_path(char* base_dir, char* base_path, char* sp_path) {
@@ -137,7 +126,7 @@ void create_base_skinpack_dir(const char* sp_path, char* skinpack_name, const ch
   
   // 3. Copy traversed files to resulting skinpack.
   for (int i = 0; i < base_files_count; i++) {
-    cp_file(files_full_paths[i], base_files[i], base_path);
+    cp_file(files_full_paths[i], base_files[i]);
     printf("created file at path: %s\n", files_full_paths[i]);
   }
   
@@ -146,39 +135,59 @@ void create_base_skinpack_dir(const char* sp_path, char* skinpack_name, const ch
 }
 
 static char* get_skinpack_dir(char* path) {
-  printf("path %s\n", path);
   int len = strlen(path);
 
   int s_count = 0;
   int i = len;
-  printf("len %d\n", len);
 
-  while (i > 0) {
-    if (s_count == 2) break;
-    if (path[i] == '/') {
-      s_count++;
-      continue;
-    }
-    
+  while (path[i] != '/') {
     i--;
   }
   
   int pos = i + 1; // Trim slash /
   return strdup(path + pos);
+
 }
 
-void cp_skin(char* sp_path, char* base_path, char* skin_path) {
-  if (!is_correct_dir(skin_path)) {
-    fprintf(stderr, "err: %s %s\n", strerror(errno), skin_path);
-    exit(errno);
+void cp_skin(char* sp_path, char* base_path, char* skin_path, char* skinpack_name) {
+  char* skin_dir = get_skinpack_dir(skin_path);
+  printf("\nskin dir: %s\n", skin_dir);
+  
+  // 1. Create skins path in source.
+  char base_path_skin[PATH_MAX];
+  sprintf(base_path_skin, "%s/%s", base_path, skin_dir);
+
+  // a) Traverse skin dir
+  char* skins[MAX_SKINS_FILES];
+  alloc_buf(skins, MAX_SKINS_FILES, PATH_MAX);
+
+  int skins_count = traverse_dir_and_save(base_path_skin, skins, E_TRAVERSE_ONLY_FILES, true);
+  print_files(skins, skins_count);
+
+  // 2. Create skins path for destination.
+  char sp_path_skin[PATH_MAX];
+  sprintf(sp_path_skin, "%s/%s", sp_path, skin_dir);
+
+  char* skins_sp[MAX_SKINS_FILES];
+  alloc_buf(skins_sp, MAX_SKINS_FILES, PATH_MAX);
+  // a) Find pos of subdirs and create result string without it
+  char* subdir_rm = get_skin_relative_path(sp_path, skinpack_name);
+  char* skin_trimmed = strstr(sp_path_skin, subdir_rm);
+  sp_path_skin[skin_trimmed - sp_path_skin - 1] = '\0'; // Get pos of begin subdir(+ 1 for trim slash) for rm and write there \0.
+
+  // b) Concatenate result string with skin path
+  for (int i = 0; i < skins_count; i++) {
+    sprintf(skins_sp[i], "%s/%s", sp_path_skin, get_skin_relative_path(skins[i], "skinpackSX"));
+    printf("skins_sp[%d]: %s\n", i, skins_sp[i]);
   }
   
-  char* subdir_path = "materials/models/weapons/v_models";
-  char res_str[PATH_MAX];
+  // 3. Copy the created skins path.
+  for (int i = 0; i < skins_count; i++) {
+    printf("copied %s to %s\n", skins[i], skins_sp[i]);
+    cp_file(skins_sp[i], skins[i]);
+  }
   
-  sprintf(res_str, "%s/%s/%s", sp_path, subdir_path, get_skinpack_dir(skin_path));
-  printf("Res str: %s\n", res_str);
-  
-  cp_file(res_str, skin_path, base_path);
-  printf("Copied %s to %s\n", res_str, sp_path);
+  dealloc_buf(skins_sp, MAX_SKINS_FILES);
+  dealloc_buf(skins, MAX_SKINS_FILES);
+  free(skin_dir);
 }
