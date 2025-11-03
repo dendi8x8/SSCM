@@ -17,6 +17,9 @@
 #include <sys/stat.h>      // for mkdir syscall
 #include <dirent.h>        // for dirent struct
 #include <string.h>        // for string functions like strncpy
-#include <limits.h>        // standart limits. 
+#include <limits.h>        // standart limits.
+
+#include "alloc.h"  // Allocating functions for char**.
+
 #endif // DEFAULT_HEADERS_H
 

@@ -87,8 +87,9 @@ char* trim_full_path(char* base_dir, char* base_path, char* sp_path) {
 }
 
 // #REFACTOR: Extract body to the functions for easy reading.
-/* LOCAL FUNCTION
-
+/* FUNCTION CREATE_BASE_SKINPACK_DIR
+   PURPOSE:
+   Create base dirs for skinpack correct work. This dirs doesn't modifying in program.
  */
 void create_base_skinpack_dir(const char* sp_path, char* skinpack_name, const char* base_path) {
   // 1. Traverse dirs
@@ -103,7 +104,7 @@ void create_base_skinpack_dir(const char* sp_path, char* skinpack_name, const ch
   for (int i = 0; i < base_dirs_count; i++) {
    result_paths[i] = trim_full_path(base_dirs[i], base_path, sp_path);
   }
-  // Move traversed dirs
+  // a)Move traversed dirs
   for (int i = 0; i < base_dirs_count; i++) {
     mkdir(result_paths[i], 0777);
   }
@@ -118,18 +119,19 @@ void create_base_skinpack_dir(const char* sp_path, char* skinpack_name, const ch
   char *files_full_paths[MAX_FILES_SKINPACK];
   int base_files_count = traverse_dir_and_save(base_path, base_files, E_TRAVERSE_ONLY_FILES, true);
   alloc_buf(files_full_paths, base_files_count, PATH_MAX);
+  puts("Base files: \n");
   print_files(base_files, base_files_count);
 
   for (int i = 0; i < base_files_count; i++) {
     files_full_paths[i] = trim_full_path(base_files[i], base_path, sp_path);
   }
   
-  // 3. Copy traversed files to resulting skinpack.
+  // a) Copy files.
   for (int i = 0; i < base_files_count; i++) {
     cp_file(files_full_paths[i], base_files[i]);
     printf("created file at path: %s\n", files_full_paths[i]);
   }
-  
+
   dealloc_buf(files_full_paths, base_files_count);
   dealloc_buf(base_files, MAX_FILES_SKINPACK);
 }
@@ -190,4 +192,176 @@ void cp_skin(char* sp_path, char* base_path, char* skin_path, char* skinpack_nam
   dealloc_buf(skins_sp, MAX_SKINS_FILES);
   dealloc_buf(skins, MAX_SKINS_FILES);
   free(skin_dir);
+}
+
+String* Create_String(char* str) {
+  String* s = malloc(sizeof(String));
+
+  if (!str) {
+    fprintf(stderr, "Err in Create_String func. Bad string. Exiting with errno: %d\n", errno);
+    exit(errno);
+  }
+  s->len = strlen(str);
+  if (s->len <= 0) {
+    fprintf(stderr, "Err in Create_String func. Bad string len. Exiting with errno: %d\n", errno);
+    exit(errno);
+  }
+  s->cap = s->len + 1; // for \0
+  
+  s->str = malloc(s->cap);
+  memcpy(s->str, str, s->len);
+  s->str[s->cap - 1] = '\0';
+  
+  printf("Created string: %s\n", s->str);
+  return s;
+}
+
+void Clear_String(String* s) {
+  if (!s) return;
+  
+  s->cap = 0;
+  free(s->str);
+  free(s);
+}
+
+Skins_Collection* Init_SkinsCollection(size_t count) {
+  Skins_Collection* skins = malloc(sizeof(Skins_Collection));
+  skins->count = count;
+  
+  printf("Skins arr count: %ld\n", skins->count);
+  printf("Ptr: %p\n", skins->skins_arr);
+
+  skins->skins_arr = malloc(sizeof(Skin) * count);
+  for (int i = 0; i < count; i++) {
+    skins->skins_arr[i].gun_type = NULL;
+    skins->skins_arr[i].gun_name = NULL;
+    skins->skins_arr[i].skin_name = NULL;
+    skins->skins_arr[i].path = NULL;
+  }
+  
+  return skins;
+}
+
+void Destroy_SkinsCollection(Skins_Collection* skins) {
+  for (int i = 0; i < skins->count; i++) {
+    Clear_String(skins->skins_arr[i].gun_type);
+    Clear_String(skins->skins_arr[i].gun_name);
+    Clear_String(skins->skins_arr[i].skin_name);
+    Clear_String(skins->skins_arr[i].path);
+  }
+  
+  free(skins->skins_arr);
+  free(skins);
+}
+
+/* FUNCTION REMOVE_BASE_SKIN_PATH
+   PURPOSE: Trim unnecessary paths from string.
+ */
+static char* remove_base_skin_path(char* path, char* base_path) {
+  char* pos = strstr(path, base_path);
+  if (!pos) {
+    fprintf(stderr, "err: %s(%d); empty string\n", strerror(errno), errno);
+    abort();
+  }
+  
+  pos = pos + strlen(base_path);  // Trim base path.
+  pos = pos + strlen("weapons/") + 1; // Trim weapons and / in the end.
+  
+  printf("Result: %s\n", pos);
+  return pos;
+}
+
+static bool is_category(char* path) {
+  int count = 0;
+  int i = 0;
+  
+  while (i < strlen(path)) {
+    if (path[i] == '/') {
+      count++;
+    }
+    i++;  
+  }
+
+  if (count == 0) {
+    return true;
+  }
+  
+  return false;
+}
+
+static bool is_gun(char* path) {
+  int i = 0;
+  int count = 0;
+
+  while (i < strlen(path)) {
+    if (path[i] == '/') {
+      count++;
+    }
+
+    i++;
+  }
+
+  if (count == 1) {
+    return true;
+  }
+
+  return false;
+}
+
+static char* get_skin_name(char* path) {
+  char* res = malloc(strlen(path));
+  
+  int i = 0;
+  i = strlen(path);
+  
+  while (i > 0) {
+    if (path[i] == '/') break;
+    i--;
+  }
+
+  res = path + i + 1; // trim slash.
+  return res;
+}
+
+int Parse_Skins(Skins_Collection* skins, char** paths, char* base_path) {
+  char* correct_paths[skins->count];
+  alloc_buf(correct_paths, skins->count, PATH_MAX / 16); // Small path because skins name too small.
+  
+  // Printing result of trimmed string.
+  for (int i = 0; i < skins->count; i++) {
+    char* result_path = remove_base_skin_path(paths[i], base_path);
+    strcpy(correct_paths[i], result_path);
+    puts("------");
+  }
+
+  print_files(correct_paths, skins->count);
+
+  // Parsing for skins.
+  int skins_count = 0;
+  for (int i = 0; i < skins->count; i++) {
+    if (is_category(correct_paths[i])) continue;
+    if (is_gun(correct_paths[i])) continue;
+    if (!correct_paths[i]) continue;
+    
+    printf("SKIN path %s\n", correct_paths[i]);
+    printf("Skin name: %s\n", get_skin_name(correct_paths[i]));
+    // Write a full path to struct
+    skins->skins_arr[skins_count].path = Create_String(paths[i]);
+    // Write a skin name to struct
+    skins->skins_arr[skins_count].skin_name = Create_String(get_skin_name(correct_paths[i]));
+    skins_count++;
+  }
+  
+  dealloc_buf(correct_paths, skins->count);
+
+  return skins_count;
+}
+
+void Print_Skins(Skins_Collection* skins) {
+  for (int i = 0; i < skins->count; i++) {
+    printf("---------[%d]---------\n", i);
+    printf("gun_type: %s\n", skins->skins_arr[i].gun_type->str);
+    printf("gun_name: %s\n", skins->skins_arr[i].gun_name->str);
+    printf("skin_name: %s\n", skins->skins_arr[i].skin_name->str);
+  }
 }
